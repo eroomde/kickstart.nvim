@@ -741,21 +741,95 @@ require('lazy').setup({
     end,
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  {
     'projekt0n/github-nvim-theme',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'github_light'
 
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
+    --lazy = false, -- make sure we load this during startup if it is your main colorscheme
+    priority = 1000, -- make sure to load this before all the other start plugins
+    config = function()
+      require('github-theme').setup() --[[{
+        palettes = {
+          -- Custom duskfox with black background
+          github_dark_default = {
+            bg1 = '#000000', -- Black background
+            bg0 = '#000000', -- Alt backgrounds (floats, statusline, ...)
+            bg3 = '#000000', -- 55% darkened from stock
+            sel0 = '#000000', -- 55% darkened from stock
+          },
+        },
+        specs = {
+          all = {
+            inactive = 'bg0', -- Default value for other styles
+          },
+          github_dark_dimmed = {
+            inactive = '#090909', -- Slightly lighter then black background
+          },
+        },
+      } ]] --
+
+      --vim.cmd 'colorscheme default'
+    end,
+  },
+  {
+    'maxmx03/solarized.nvim',
+    lazy = false,
+    priority = 1000,
+    config = function()
+      vim.o.background = 'dark' -- or 'light'
+
+      vim.cmd.colorscheme 'solarized'
+    end,
+  },
+  {
+    'askfiy/visual_studio_code',
+    priority = 100,
+    config = function()
+      require('visual_studio_code').setup {
+        -- `dark` or `light`
+        mode = 'light',
+        -- Whether to load all color schemes
+        preset = true,
+        -- Whether to enable background transparency
+        transparent = false,
+        -- Whether to apply the adapted plugin
+        expands = {
+          hop = true,
+          dbui = true,
+          lazy = true,
+          aerial = true,
+          null_ls = true,
+          nvim_cmp = true,
+          gitsigns = true,
+          which_key = true,
+          nvim_tree = true,
+          lspconfig = true,
+          telescope = true,
+          bufferline = true,
+          nvim_navic = true,
+          nvim_notify = true,
+          vim_illuminate = true,
+          nvim_treesitter = true,
+          nvim_ts_rainbow = true,
+          nvim_scrollview = true,
+          nvim_ts_rainbow2 = true,
+          indent_blankline = true,
+          vim_visual_multi = true,
+        },
+        hooks = {
+          before = function(conf, colors, utils) end,
+          after = function(conf, colors, utils) end,
+        },
+      }
+      vim.cmd [[colorscheme visual_studio_code]]
+    end,
+  },
+  {
+    'lewis6991/spellsitter.nvim',
+    config = function()
+      require('spellsitter').setup {
+        enable = { 'markdown', 'latex', 'md' },
+        debug = false,
+      }
     end,
   },
 
@@ -812,7 +886,7 @@ require('lazy').setup({
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'rust', 'ruby' },
-        --disable = { 'tex', 'latex', 'md' },
+        disable = { 'tex', 'latex', 'markdown' },
       },
       indent = { enable = false, disable = { 'ruby' } },
     },
