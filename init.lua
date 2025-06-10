@@ -209,6 +209,15 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+vim.api.nvim_create_autocmd('BufWinEnter', {
+  pattern = { '*.md' },
+  callback = function()
+    vim.opt.statusline = vim.opt.statusline:get() .. ' %{wordcount().words} words'
+    vim.opt.colorcolumn = '80'
+    vim.opt.textwidth = 80
+  end,
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -270,6 +279,32 @@ require('lazy').setup({
     },
   },
 
+  {
+    'nwiizo/cargo.nvim',
+    build = 'cargo build --release',
+    config = function()
+      require('cargo').setup {
+        float_window = true,
+        window_width = 0.8,
+        window_height = 0.8,
+        border = 'rounded',
+        auto_close = true,
+        close_timeout = 5000,
+      }
+    end,
+    ft = { 'rust' },
+    cmd = {
+      'CargoBench',
+      'CargoBuild',
+      'CargoClean',
+      'CargoDoc',
+      'CargoNew',
+      'CargoRun',
+      'CargoTest',
+      'CargoUpdate',
+    },
+  },
+
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -285,6 +320,7 @@ require('lazy').setup({
   -- after the plugin has been loaded:
   --  config = function() ... end
 
+  --[[
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
@@ -301,6 +337,8 @@ require('lazy').setup({
       }
     end,
   },
+
+  --]]
 
   -- NOTE: Plugins can specify dependencies.
   --
@@ -554,6 +592,7 @@ require('lazy').setup({
         -- gopls = {},
         pyright = {},
         rust_analyzer = {},
+        julials = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -608,6 +647,10 @@ require('lazy').setup({
         },
       }
     end,
+  },
+
+  {
+    'JuliaEditorSupport/julia-vim',
   },
 
   { -- Autoformat
@@ -747,7 +790,7 @@ require('lazy').setup({
     --lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
-      require('github-theme').setup() --[[{
+      require('github-theme').setup {
         palettes = {
           -- Custom duskfox with black background
           github_dark_default = {
@@ -765,7 +808,13 @@ require('lazy').setup({
             inactive = '#090909', -- Slightly lighter then black background
           },
         },
-      } ]] --
+        options = {
+          styles = {
+            keywords = 'bold',
+            comments = 'italic',
+          },
+        },
+      }
 
       --vim.cmd 'colorscheme default'
     end,
@@ -775,7 +824,7 @@ require('lazy').setup({
     lazy = false,
     priority = 1000,
     config = function()
-      vim.o.background = 'dark' -- or 'light'
+      --vim.o.background = 'dark' -- or 'light'
 
       vim.cmd.colorscheme 'solarized'
     end,
@@ -820,7 +869,9 @@ require('lazy').setup({
           after = function(conf, colors, utils) end,
         },
       }
-      vim.cmd [[colorscheme visual_studio_code]]
+      vim.cmd [[autocmd ColorScheme * highlight Normal ctermbg=NONE guibg=NONE]]
+      vim.cmd [[colorscheme github_light_high_contrast]]
+      -- vim.cmd [[autocmd ColorScheme * highlight Normal ctermbg=NONE guibg=NONE]]
     end,
   },
   {
@@ -903,6 +954,23 @@ require('lazy').setup({
       --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     end,
+  },
+  {
+    'linux-cultist/venv-selector.nvim',
+    dependencies = {
+      'neovim/nvim-lspconfig',
+      'mfussenegger/nvim-dap',
+      'mfussenegger/nvim-dap-python', --optional
+      { 'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } },
+    },
+    lazy = false,
+    branch = 'regexp', -- This is the regexp branch, use this for the new version
+    config = function()
+      require('venv-selector').setup()
+    end,
+    keys = {
+      { ',v', '<cmd>VenvSelect<cr>' },
+    },
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
